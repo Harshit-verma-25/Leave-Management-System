@@ -1,0 +1,122 @@
+[
+  {
+    "id": "1",
+    "name": "Aarav Mehta",
+    "image": null,
+    "appliedOn": "2023-12-01",
+    "leaveType": "AL",
+    "leave": "Annual Leave",
+    "fromTo": "26th Dec - 30th Dec",
+    "days": "5 Days",
+    "reason": "Vacation trip",
+    "status": "APPROVED"
+  },
+  {
+    "id": "2",
+    "name": "Sanya Sharma",
+    "image": null,
+    "appliedOn": "2023-12-02",
+    "leaveType": "SL",
+    "leave": "Sick Leave",
+    "fromTo": "12th Jan - 15th Jan",
+    "days": "1 Day",
+    "reason": "Fever",
+    "status": "PENDING"
+  },
+  {
+    "id": "3",
+    "name": "Rahul Verma",
+    "image": null,
+    "appliedOn": "2023-12-03",
+    "leaveType": "CL",
+    "leave": "Casual Leave",
+    "fromTo": "8th Feb - 10th Feb",
+    "days": "3 Days",
+    "reason": "Family Function",
+    "status": "DISAPPROVED"
+  },
+  {
+    "id": "4",
+    "name": "Meena Gupta",
+    "image": null,
+    "appliedOn": "2023-12-03",
+    "leaveType": "PL",
+    "leave": "Personal Leave",
+    "fromTo": "5th Mar",
+    "days": "1 Day",
+    "reason": "Personal work",
+    "status": "APPROVED"
+  },
+  {
+    "id": "5",
+    "name": "Karan Singh",
+    "image": null,
+    "appliedOn": "2023-12-05",
+    "leaveType": "SL",
+    "leave": "Sick Leave",
+    "fromTo": "20th Mar - 22nd Mar",
+    "days": "3 Days",
+    "reason": "Back pain",
+    "status": "APPROVED"
+  },
+  {
+    "id": "6",
+    "name": "Pooja Nair",
+    "image": null,
+    "appliedOn": "2023-12-06",
+    "leaveType": "AL",
+    "leave": "Annual Leave",
+    "fromTo": "15th Apr - 18th Apr",
+    "days": "4 Days",
+    "reason": "Trip with friends",
+    "status": "PENDING"
+  },
+  {
+    "id": "7",
+    "name": "Amit Bansal",
+    "image": null,
+    "appliedOn": "2023-12-07",
+    "leaveType": "CL",
+    "leave": "Casual Leave",
+    "fromTo": "2nd May",
+    "days": "1 Day",
+    "reason": "Bank work",
+    "status": "APPROVED"
+  },
+  {
+    "id": "8",
+    "name": "Nidhi Kapoor",
+    "image": null,
+    "appliedOn": "2023-12-08",
+    "leaveType": "PL",
+    "leave": "Personal Leave",
+    "fromTo": "10th May - 11th May",
+    "days": "2 Days",
+    "reason": "Short trip",
+    "status": "DISAPPROVED"
+  },
+  {
+    "id": "9",
+    "name": "Rohan Joshi",
+    "image": null,
+    "appliedOn": "2023-12-09",
+    "leaveType": "SL",
+    "leave": "Sick Leave",
+    "fromTo": "25th May",
+    "days": "1 Day",
+    "reason": "Cold and flu",
+    "status": "PENDING"
+  },
+  {
+    "id": "10",
+    "name": "Ishita Rao",
+    "image": null,
+    "appliedOn": "2023-12-10",
+    "leaveType": "AL",
+    "leave": "Annual Leave",
+    "fromTo": "1st Jun - 5th Jun",
+    "days": "5 Days",
+    "reason": "International travel",
+    "status": "APPROVED"
+  }
+]
