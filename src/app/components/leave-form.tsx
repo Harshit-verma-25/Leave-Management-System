@@ -1,6 +1,6 @@
 "use client";
 
-import react, { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   LEAVE_TYPES,
