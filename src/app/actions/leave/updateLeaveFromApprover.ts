@@ -36,7 +36,7 @@ export async function updateLeaveFromApprover(
       ...approvalStatus[index],
       status,
       approvedOn,
-      comment: status === "DISAPPROVED" ? comment : "",
+      comment: comment || "",
     };
 
     if (status === "DISAPPROVED") {

@@ -18,7 +18,11 @@ export interface ApplyLeaveProps {
   addressDuringLeave: string;
   emergencyContactName: string;
   emergencyContactNumber: string;
-  delegatedTo: string;
+  delegationOfDuties: {
+    project: string;
+    deadline: string;
+    delegatedTo: string;
+  }[];
   reason: string;
   appliedOn: string;
   status: LeaveStatus;

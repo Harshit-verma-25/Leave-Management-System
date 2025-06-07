@@ -103,11 +103,13 @@ export default function LeaveReviewModal({
                   }
                   handleSubmit(actionType!, comment);
                 }}
-                className="bg-green-600 hover:bg-green-700 text-white px-5 py-2 rounded-md cursor-pointer"
+                className={` ${
+                  actionType === "DISAPPROVED"
+                    ? "bg-red-600 hover:bg-red-700"
+                    : "bg-green-600 hover:bg-green-700"
+                } text-white px-5 py-2 rounded-md cursor-pointer`}
               >
-                {actionType === "APPROVED"
-                  ? "Approve Anyway"
-                  : "Submit Comment"}
+                {actionType === "APPROVED" ? "Approve Anyway" : "Confirm"}
               </button>
             </div>
           </div>
@@ -195,19 +197,41 @@ export default function LeaveReviewModal({
           {/* Reason and Delegation */}
           <div className="mt-4 text-sm text-gray-700">
             <h2 className="text-lg font-bold text-gray-800 mb-2">
-              <span className="underline">Delegation of Duties</span>:
+              <span className="underline">
+                Delegation of Duties & Project Handover
+              </span>
+              :
             </h2>
-            <div className="grid gap-2 md:grid-cols-2">
-              <p>
-                <strong className="mr-2">Delegated To:</strong>
-                <span>{leaveData.delegatedTo}</span>
-              </p>
 
-              <p>
-                <strong className="mr-2">Reason:</strong>
-                <span>{leaveData.reason}</span>
-              </p>
-            </div>
+            <table className="min-w-full border">
+              <thead className="text-center">
+                <tr className="bg-gray-200 border-b">
+                  <th className="px-4 py-2">Project Name</th>
+                  <th className="px-4 py-2">Deadline</th>
+                  <th className="px-4 py-2">Delegated To</th>
+                </tr>
+              </thead>
+              <tbody className="text-center">
+                {leaveData.delegationOfDuties.length > 0 ? (
+                  leaveData.delegationOfDuties.map((duty, index) => (
+                    <tr
+                      key={index}
+                      className="hover:bg-gray-100 transition-colors"
+                    >
+                      <td className="px-4 py-2">{duty.project}</td>
+                      <td className="px-4 py-2">{formatDate(duty.deadline)}</td>
+                      <td className="px-4 py-2">{duty.delegatedTo}</td>
+                    </tr>
+                  ))
+                ) : (
+                  <tr>
+                    <td colSpan={3} className="text-center px-4 py-2">
+                      No delegation of duties provided.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
 
           {/* Attachment Section */}

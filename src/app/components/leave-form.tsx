@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import react, { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import {
   LEAVE_TYPES,
@@ -8,7 +8,7 @@ import {
   LeaveHistoryProps,
 } from "@/app/types/leaves";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { Plus, X } from "lucide-react";
 import { toast } from "react-toastify";
 import { eachDayOfInterval, isBefore, parseISO } from "date-fns";
 import { uploadImage } from "@/app/actions/image/uploadImage";
@@ -18,6 +18,7 @@ import { getSingleLeave } from "@/app/actions/leave/getSingleLeave";
 import { updateLeave } from "@/app/actions/leave/updateLeave";
 import { getSingleStaff } from "../actions/staff/getSingleStaff";
 import { ReportingAuthority } from "@/app/types/user";
+import React from "react";
 
 type roleType = "manager" | "employee";
 type LeaveMode = "create" | "edit" | "view";
@@ -43,7 +44,13 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
       addressDuringLeave: "",
       emergencyContactName: "",
       emergencyContactNumber: "",
-      delegatedTo: "",
+      delegationOfDuties: [
+        {
+          project: "",
+          deadline: "",
+          delegatedTo: "",
+        },
+      ],
       reason: "",
       appliedOn: new Date().toISOString().split("T")[0],
       status: "PENDING",
@@ -81,8 +88,6 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
 
     fetchLeaveData();
   }, [mode]);
-
-  console.log("Form Data:", formData);
 
   useEffect(() => {
     const fetchReportingAuthority = async () => {
@@ -141,6 +146,35 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
     } else {
       setAttachmentPreview(null); // No preview for PDF
     }
+  };
+
+  const addProject = () => {
+    setFormData((prev) => ({
+      ...prev,
+      delegationOfDuties: [
+        ...prev.delegationOfDuties,
+        { project: "", deadline: "", delegatedTo: "" },
+      ],
+    }));
+  };
+
+  const removeProject = (index: number) => {
+    setFormData((prev) => ({
+      ...prev,
+      delegationOfDuties: prev.delegationOfDuties.filter((_, i) => i !== index),
+    }));
+  };
+
+  const handleProjectChange = (
+    index: number,
+    field: keyof ApplyLeaveProps["delegationOfDuties"][number],
+    value: string
+  ) => {
+    setFormData((prev) => {
+      const updatedProjects = [...prev.delegationOfDuties];
+      updatedProjects[index][field] = value;
+      return { ...prev, delegationOfDuties: updatedProjects };
+    });
   };
 
   const handleChange = (
@@ -218,6 +252,8 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
     });
   }
 
+  console.log("Form Data:", formData);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -244,13 +280,20 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
       "addressDuringLeave",
       "emergencyContactName",
       "emergencyContactNumber",
-      "delegatedTo",
       "reason",
     ];
 
     for (const field of requiredFields) {
       if (!formData[field as keyof ApplyLeaveProps]) {
         toast.error(`Please fill in the ${field.replace(/([A-Z])/g, " $1")}.`);
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    for (const project of formData.delegationOfDuties) {
+      if (!project.project || !project.deadline || !project.delegatedTo) {
+        toast.error("Please fill in all fields for each project.");
         setIsSubmitting(false);
         return;
       }
@@ -502,54 +545,167 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
 
           {/* Reason and Delegation */}
           <div>
-            <h2 className="text-xl font-bold text-gray-800 mb-4">
-              <span className="underline">Delegation of Duties</span>:
-            </h2>
-            <div className="space-y-4">
-              <div>
-                <label
-                  htmlFor="delegatedTo"
-                  className="block font-semibold text-gray-700 mb-1"
-                >
-                  Delegation of Duties <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="delegatedTo"
-                  name="delegatedTo"
-                  onChange={handleChange}
-                  value={formData.delegatedTo}
-                  placeholder="Name of the person delegated"
-                  className={`w-full border border-gray-300 rounded-md p-2 ${
-                    mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-gray-800">
+                <span className="underline">
+                  Delegation of Duties & Project Handover
+                </span>
+                :
+              </h2>
+              {mode !== "view" && (
+                <button
+                  type="button"
+                  onClick={addProject}
+                  className={`bg-black text-white px-4 py-2 rounded-lg font-medium transition-colors duration-200 flex items-center gap-1 ${
+                    formData.delegationOfDuties.length >= 3
+                      ? "opacity-50 cursor-not-allowed"
+                      : "cursor-pointer"
                   }`}
-                  required
-                  readOnly={mode === "view"}
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <label
-                  htmlFor="reason"
-                  className="block font-semibold text-gray-700 mb-1"
+                  disabled={formData.delegationOfDuties.length >= 3}
                 >
-                  Reason for Leave <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  id="reason"
-                  name="reason"
-                  onChange={handleChange}
-                  value={formData.reason}
-                  placeholder="State your reason"
-                  rows={3}
-                  className={`w-full border border-gray-300 rounded-md p-2 ${
-                    mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
-                  }`}
-                  required
-                  readOnly={mode === "view"}
-                />
-              </div>
+                  <Plus className="w-5 h-5 text-white" />
+                  Add Project
+                </button>
+              )}
             </div>
+
+            <div className="space-y-4 mt-4">
+              {formData.delegationOfDuties.map((project, index) => (
+                <div key={index} className="grid gap-4 md:grid-cols-2">
+                  {index === 0 && (
+                    <h3 className="text-lg font-semibold text-gray-800 col-span-2">
+                      Project {index + 1}{" "}
+                      <span className="text-red-500">*</span>{" "}
+                      {
+                        <span className="text-sm font-normal text-gray-600">
+                          (At least one project is required)
+                        </span>
+                      }
+                    </h3>
+                  )}
+
+                  {index !== 0 && (
+                    <div className="flex items-center justify-between col-span-2">
+                      <h3 className="text-lg font-semibold text-gray-800">
+                        Project {index + 1}{" "}
+                      </h3>
+                      <button
+                        type="button"
+                        onClick={() => removeProject(index)}
+                        className={`px-4 py-2 border border-red-600 hover:border-red-800 rounded-lg font-medium duration-200 flex items-center gap-1 text-red-600 hover:text-red-800 transition cursor-pointer ${
+                          mode === "view" ? "hidden" : ""
+                        }`}
+                      >
+                        <X className="w-5 h-5" /> Remove
+                      </button>
+                    </div>
+                  )}
+
+                  <div>
+                    <label
+                      htmlFor={`project-${index}`}
+                      className="block font-semibold text-gray-700 mb-1"
+                    >
+                      Project Name{" "}
+                      {index === 0 && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      id={`project-${index}`}
+                      type="text"
+                      name="delegatedTo"
+                      value={project.project}
+                      onChange={(e) =>
+                        handleProjectChange(index, "project", e.target.value)
+                      }
+                      placeholder="Enter project name"
+                      className={`w-full border border-gray-300 rounded-md p-2 ${
+                        mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
+                      required
+                      readOnly={mode === "view"}
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      htmlFor={`deadline-${index}`}
+                      className="block font-semibold text-gray-700 mb-1"
+                    >
+                      Deadline{" "}
+                      {index === 0 && <span className="text-red-500">*</span>}
+                    </label>
+                    <input
+                      id={`deadline-${index}`}
+                      type="date"
+                      name="deadline"
+                      value={project.deadline}
+                      onChange={(e) =>
+                        handleProjectChange(index, "deadline", e.target.value)
+                      }
+                      className={`w-full border border-gray-300 rounded-md p-2 ${
+                        mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
+                      required
+                      readOnly={mode === "view"}
+                    />
+                  </div>
+
+                  <div className="md:col-span-2">
+                    <label
+                      htmlFor={`delegatedTo-${index}`}
+                      className="block font-semibold text-gray-700 mb-1"
+                    >
+                      Delegated To{" "}
+                      {index === 0 && <span className="text-red-500">*</span>}
+                    </label>
+                    <textarea
+                      id={`delegatedTo-${index}`}
+                      name="delegatedTo"
+                      value={project.delegatedTo}
+                      onChange={(e) =>
+                        handleProjectChange(
+                          index,
+                          "delegatedTo",
+                          e.target.value
+                        )
+                      }
+                      placeholder="Enter delegate's name"
+                      rows={3}
+                      className={`w-full border border-gray-300 rounded-md p-2 ${
+                        mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+                      }`}
+                      required
+                      readOnly={mode === "view"}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          <div>
+            <h2 className="text-xl font-bold text-gray-800 mb-4">
+              <span className="underline">Leave Justification</span>:
+            </h2>
+            <label
+              htmlFor="reason"
+              className="block font-semibold text-gray-700 mb-1"
+            >
+              Reason <span className="text-red-500">*</span>
+            </label>
+            <textarea
+              id="reason"
+              name="reason"
+              onChange={handleChange}
+              value={formData.reason}
+              placeholder="State your reason"
+              rows={3}
+              className={`w-full border border-gray-300 rounded-md p-2 ${
+                mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+              }`}
+              required
+              readOnly={mode === "view"}
+            />
           </div>
 
           {/* Attachment Section */}
