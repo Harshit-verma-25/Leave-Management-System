@@ -60,8 +60,8 @@ export default function Header({
           <Image
             src="/logo.png"
             alt="Company Logo"
-            width={40}
-            height={40}
+            width={9999}
+            height={9999}
             className="h-full w-full object-cover rounded-full bg-slate-800 p-0.5"
             priority
           />
@@ -93,8 +93,8 @@ export default function Header({
             <Image
               src={profile || "/placeholder.svg"}
               alt="User Profile"
-              width={40}
-              height={40}
+              width={9999}
+              height={9999}
               className="object-cover w-full h-full"
               priority
             />

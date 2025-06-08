@@ -21,7 +21,7 @@ export async function Login(data: { token: string; role: string }) {
     if (role.toLowerCase() !== data.role.toLowerCase()) {
       return {
         status: 403,
-        message: "Unauthorized role",
+        message: "Unauthorized Access",
       };
     }
 

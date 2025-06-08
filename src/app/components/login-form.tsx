@@ -17,12 +17,10 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     if (!email || !password) {
       alert("Please fill in all fields");
@@ -46,15 +44,21 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
           "user",
           JSON.stringify({ name: response.data.name, role: response.data.role })
         );
-        toast.success("Login successful");
+        toast.success(`Welcome back, ${response.data.name}!`);
 
         router.push(`/${type.toLowerCase()}/${response.data.uid}/dashboard`);
-      } else {
-        setError(response.data.message);
       }
-    } catch {
+    } catch (error: any) {
+      if (error.response && error.response.data) {
+        toast.error(error.response.data.message || "An error occurred");
+      } else {
+        toast.error("An unexpected error occurred");
+      }
     } finally {
       setLoading(false);
+      setEmail("");
+      setPassword("");
+      setShowPassword(false);
     }
   };
 
@@ -110,7 +114,6 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
-        {error && <span className="text-red-500 text-sm">{error}</span>}
       </div>
 
       <div className="flex items-center gap-2 justify-between">

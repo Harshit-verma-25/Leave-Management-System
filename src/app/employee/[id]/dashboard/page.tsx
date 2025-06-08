@@ -1,26 +1,26 @@
 "use client";
 
-import {
-  Badge,
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/app/components/card";
-import Link from "next/link";
-import data from "@/app/data.json";
-import { useParams } from "next/navigation";
+// import {
+//   Badge,
+//   Card,
+//   CardContent,
+//   CardHeader,
+//   CardTitle,
+// } from "@/app/components/card";
+// import Link from "next/link";
+// import data from "@/app/data.json";
+// import { useParams } from "next/navigation";
 
 const DashboardPage = () => {
-  const { id } = useParams() as { id: string };
-  const colors = [
-    "#8742f5",
-    "#f542e0",
-    "#f5a742",
-    "#4287f5",
-    "#42f5c8",
-    "#f5e142",
-  ];
+  // const { id } = useParams() as { id: string };
+  // const colors = [
+  //   "#8742f5",
+  //   "#f542e0",
+  //   "#f5a742",
+  //   "#4287f5",
+  //   "#42f5c8",
+  //   "#f5e142",
+  // ];
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] lg:p-6 p-4">
@@ -28,9 +28,9 @@ const DashboardPage = () => {
         <h1 className="text-3xl font-bold text-gray-900">Employee Dashboard</h1>
       </div>
 
-      {/* Leave Summary Cards */}
+      <p>Under Developement</p>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
+      {/* <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-3 lg:grid-cols-4">
         {[
           "Total Leaves",
           "Pending Leaves",
@@ -67,8 +67,6 @@ const DashboardPage = () => {
       </div>
 
       <div className="mt-6 grid grid-cols-1 gap-4 lg:grid-cols-2">
-        {/* Left Column: Team Availability + Leave History */}
-
         <Card>
           <CardHeader>
             <div className="flex items-center justify-between">
@@ -123,7 +121,6 @@ const DashboardPage = () => {
           </div>
         </Card>
 
-        {/* Right Column: Public Holidays Full Height */}
         <Card>
           <CardHeader>
             <CardTitle>Upcoming Public Holidays</CardTitle>
@@ -145,7 +142,7 @@ const DashboardPage = () => {
             ))}
           </CardContent>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 };

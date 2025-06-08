@@ -1,88 +1,88 @@
 "use client";
 
-import { Card, CardTitle } from "@/app/components/card";
-import { CalendarClock, Network, NotepadText, User2 } from "lucide-react";
-import { useEffect, useState } from "react";
+// import { Card, CardTitle } from "@/app/components/card";
+// import { CalendarClock, Network, NotepadText, User2 } from "lucide-react";
+// import { useEffect, useState } from "react";
 
-type Employee = {
-  name: string;
-  designation: string;
-  role: string;
-};
+// type Employee = {
+//   name: string;
+//   designation: string;
+//   role: string;
+// };
 
-type Count = {
-  staff: number;
-  departments: number;
-  leaveTypes: number;
-  leaveRequests: number;
-};
+// type Count = {
+//   staff: number;
+//   departments: number;
+//   leaveTypes: number;
+//   leaveRequests: number;
+// };
 
-type RecentLeaves = {
-  name: string;
-  startDate: string;
-  endDate: string;
-};
+// type RecentLeaves = {
+//   name: string;
+//   startDate: string;
+//   endDate: string;
+// };
 
 export default function AdminDashboardPage() {
-  const [count, setCount] = useState<Count>({
-    staff: 0,
-    departments: 0,
-    leaveTypes: 0,
-    leaveRequests: 0,
-  });
+  // const [count, setCount] = useState<Count>({
+  //   staff: 0,
+  //   departments: 0,
+  //   leaveTypes: 0,
+  //   leaveRequests: 0,
+  // });
 
-  const [newestEmployees, setNewestEmployees] = useState<Employee[] | null>(
-    null
-  );
+  // const [newestEmployees, setNewestEmployees] = useState<Employee[] | null>(
+  //   null
+  // );
 
-  const [recentLeaves, setRecentLeaves] = useState<RecentLeaves[]>([]);
+  // const [recentLeaves, setRecentLeaves] = useState<RecentLeaves[]>([]);
 
-  useEffect(() => {
-    const fetchData = async () => {
-      const data = {
-        staff: 10,
-        departments: 5,
-        leaveTypes: 3,
-        leaveRequests: 20,
-      };
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     const data = {
+  //       staff: 10,
+  //       departments: 5,
+  //       leaveTypes: 3,
+  //       leaveRequests: 20,
+  //     };
 
-      const employees = [
-        { name: "John Doe", designation: "Software Engineer", role: "Staff" },
-        { name: "Jane Smith", designation: "Product Manager", role: "Staff" },
-        { name: "Alice Johnson", designation: "UX Designer", role: "Staff" },
-        { name: "Bob Brown", designation: "Data Analyst", role: "Staff" },
-        {
-          name: "Charlie Davis",
-          designation: "DevOps Engineer",
-          role: "Staff",
-        },
-      ];
+  //     const employees = [
+  //       { name: "John Doe", designation: "Software Engineer", role: "Staff" },
+  //       { name: "Jane Smith", designation: "Product Manager", role: "Staff" },
+  //       { name: "Alice Johnson", designation: "UX Designer", role: "Staff" },
+  //       { name: "Bob Brown", designation: "Data Analyst", role: "Staff" },
+  //       {
+  //         name: "Charlie Davis",
+  //         designation: "DevOps Engineer",
+  //         role: "Staff",
+  //       },
+  //     ];
 
-      const leaves = [
-        {
-          name: "John Doe",
-          startDate: "2023-10-01",
-          endDate: "2023-10-05",
-        },
-        {
-          name: "Jane Smith",
-          startDate: "2023-10-03",
-          endDate: "2023-10-07",
-        },
-        {
-          name: "Alice Johnson",
-          startDate: "2023-10-02",
-          endDate: "2023-10-06",
-        },
-      ];
+  //     const leaves = [
+  //       {
+  //         name: "John Doe",
+  //         startDate: "2023-10-01",
+  //         endDate: "2023-10-05",
+  //       },
+  //       {
+  //         name: "Jane Smith",
+  //         startDate: "2023-10-03",
+  //         endDate: "2023-10-07",
+  //       },
+  //       {
+  //         name: "Alice Johnson",
+  //         startDate: "2023-10-02",
+  //         endDate: "2023-10-06",
+  //       },
+  //     ];
 
-      setCount(data);
-      setNewestEmployees(employees);
-      setRecentLeaves(leaves);
-    };
+  //     setCount(data);
+  //     setNewestEmployees(employees);
+  //     setRecentLeaves(leaves);
+  //   };
 
-    fetchData();
-  }, []);
+  //   fetchData();
+  // }, []);
 
   return (
     <div className="min-h-screen bg-[#f8f9fa] lg:p-6 p-4">
@@ -90,7 +90,9 @@ export default function AdminDashboardPage() {
         <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <p>Under Development</p>
+
+      {/* <div className="mb-6 grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card className="p-4 flex flex-col justify-between min-h-36">
           <CardTitle className="flex items-center justify-between text-[#8742f5]">
             <User2 className="h-10 w-10" />
@@ -206,7 +208,7 @@ export default function AdminDashboardPage() {
             </tbody>
           </table>
         </Card>
-      </div>
+      </div> */}
     </div>
   );
 }
