@@ -7,7 +7,7 @@ import formatDate from "@/app/components/formatDate";
 import { deleteLeave } from "@/app/actions/leave/deleteLeave";
 import { toast } from "react-toastify";
 import ApprovalTimeline from "@/app/components/approval-timeline";
-import { ChevronDown, ChevronUp, Filter, FilterIcon, X } from "lucide-react";
+import { ChevronDown, ChevronUp } from "lucide-react";
 
 export const LeaveTable = ({ role }: { role: string }) => {
   const { id } = useParams() as { id: string };
