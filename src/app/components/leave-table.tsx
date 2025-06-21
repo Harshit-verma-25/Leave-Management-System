@@ -7,7 +7,7 @@ import formatDate from "@/app/components/formatDate";
 import { deleteLeave } from "@/app/actions/leave/deleteLeave";
 import { toast } from "react-toastify";
 import ApprovalTimeline from "@/app/components/approval-timeline";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown, ChevronUp, Filter, FilterIcon, X } from "lucide-react";
 
 export const LeaveTable = ({ role }: { role: string }) => {
   const { id } = useParams() as { id: string };
@@ -18,6 +18,9 @@ export const LeaveTable = ({ role }: { role: string }) => {
   >("PENDING");
 
   const [data, setData] = useState<LeaveHistoryProps[] | null>(null);
+  const [filteredData, setFilteredData] = useState<LeaveHistoryProps[] | null>(
+    null
+  );
   const [expandCard, setExpandCard] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
@@ -37,6 +40,11 @@ export const LeaveTable = ({ role }: { role: string }) => {
         }
 
         setData((response.data as LeaveHistoryProps[]) || []);
+        setFilteredData(
+          (response.data as LeaveHistoryProps[]).filter(
+            (leave) => leave.status === selectedTab
+          )
+        );
       } catch (error) {
         console.error("Error fetching leave requests:", error);
       } finally {
@@ -75,8 +83,6 @@ export const LeaveTable = ({ role }: { role: string }) => {
     }
   };
 
-  const filteredRequests = data && data.filter((r) => r.status === selectedTab);
-
   return (
     <div className="min-h-screen bg-[#f8f9fa] p-6">
       <div className="mb-6 flex items-center justify-between">
@@ -106,6 +112,54 @@ export const LeaveTable = ({ role }: { role: string }) => {
         ))}
       </div>
 
+      {/* <div className="mb-4">
+        <div className="flex items-center gap-2 mb-4">
+          <Filter className="w-5 h-5" />
+          <h2 className="text-xl font-bold text-gray-800">Filter & Search</h2>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex items-center gap-2 w-fit">
+              <input
+                type="date"
+                className="border rounded-md p-2 w-full"
+                placeholder="Start Date"
+              />
+
+              <span>To</span>
+
+              <input
+                type="date"
+                className="border rounded-md p-2 w-full"
+                placeholder="End Date"
+              />
+            </div>
+
+            <select className="border rounded-md p-2 w-full">
+              <option value="">All Leave Types</option>
+              {Object.entries(LEAVE_TYPES).map(([key, value]) => (
+                <option key={key} value={key}>
+                  {value}
+                </option>
+              ))}
+            </select>
+
+            <select className="border rounded-md p-2 w-full">
+              <option value="">All Durations</option>
+              <option value="1">Less than 3 days</option>
+              <option value="3">3 to 7 days</option>
+              <option value="7">More than 7 days</option>
+            </select>
+          </div>
+
+          <button className="flex items-center bg-black text-white py-2 px-3 rounded-md cursor-pointer">
+            <X className="w-5 h-5" />
+            Clear Filters
+          </button>
+        </div>
+      </div> */}
+
       {/* Loading State */}
       {loading && (
         <div className="flex items-center justify-center min-h-[200px]">
@@ -114,21 +168,18 @@ export const LeaveTable = ({ role }: { role: string }) => {
       )}
 
       {/* No data */}
-      {!loading &&
-        selectedTab &&
-        filteredRequests &&
-        filteredRequests.length === 0 && (
-          <div className="flex items-center justify-center min-h-[200px]">
-            <p className="text-gray-500">
-              No {selectedTab.toLowerCase()} leave requests found.
-            </p>
-          </div>
-        )}
+      {!loading && selectedTab && filteredData && filteredData.length === 0 && (
+        <div className="flex items-center justify-center min-h-[200px]">
+          <p className="text-gray-500">
+            No {selectedTab.toLowerCase()} leave requests found.
+          </p>
+        </div>
+      )}
 
       {/* Leave Cards */}
-      {!loading && filteredRequests && filteredRequests.length > 0 && (
+      {!loading && filteredData && filteredData.length > 0 && (
         <div className="space-y-4">
-          {filteredRequests.map((req) => {
+          {filteredData.map((req) => {
             const isExpanded = expandCard === req.id;
             return (
               <div

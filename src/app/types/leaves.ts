@@ -22,6 +22,7 @@ export interface ApplyLeaveProps {
     project: string;
     deadline: string;
     delegatedTo: string;
+    description: string;
   }[];
   reason: string;
   appliedOn: string;
