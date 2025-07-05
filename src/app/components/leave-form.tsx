@@ -20,6 +20,7 @@ import { getSingleStaff } from "../actions/staff/getSingleStaff";
 import { ReportingAuthority } from "@/app/types/user";
 import React from "react";
 import { smartCompose } from "@/app/actions/openAI/smartCompose";
+import { getCookie } from "@/app/actions/getCookie";
 
 type roleType = "manager" | "employee";
 type LeaveMode = "create" | "edit" | "view";
@@ -373,11 +374,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
     }
 
     for (const project of formData.delegationOfDuties) {
-      if (
-        !project.project ||
-        !project.deadline ||
-        !project.delegatedTo
-      ) {
+      if (!project.project || !project.deadline || !project.delegatedTo) {
         toast.error("Please fill in all fields for each project.");
         setIsSubmitting(false);
         return;
@@ -436,7 +433,10 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
               description: projectDescriptions[index] || "",
             })
           ),
-        }
+        };
+
+        const cookie = await getCookie();
+        const name = cookie?.name || "";
 
         const response = await createLeave(
           {
@@ -444,7 +444,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
             attachment: url || "",
             approvalStatus: appStats as LeaveHistoryProps["approvalStatus"],
             currentApprover: reportingAuthority[0].id,
-            name: JSON.parse(sessionStorage.getItem("user") || "{}").name,
+            name: name,
             reason: reason.trim(),
           },
           leaveID
