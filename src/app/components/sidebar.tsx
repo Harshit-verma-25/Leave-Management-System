@@ -5,14 +5,15 @@ import {
   Menu,
   X,
   LayoutDashboard,
-  UserRoundX,
   User2Icon,
   CalendarSearch,
+  CalendarPlus,
 } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { UserRole } from "@/app/types/user";
 import { Logout } from "@/app/actions/auth/logout";
+import DropDownNav from "@/app/components/dropDown";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,7 +24,6 @@ interface SidebarProps {
 
 const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
   const router = useRouter();
-
   const handleLogout = async () => {
     const response = await Logout();
     if (response.status === 200) {
@@ -62,7 +62,7 @@ const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
       {
         label: "My Leaves",
         href: `/manager/${userId}/leaves`,
-        icon: UserRoundX,
+        icon: CalendarPlus,
       },
       {
         label: "Leave Approvals",
@@ -74,7 +74,7 @@ const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
       {
         label: "My Leaves",
         href: `/employee/${userId}/leaves`,
-        icon: UserRoundX,
+        icon: CalendarPlus,
       },
     ],
   };
@@ -83,11 +83,15 @@ const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
 
   return (
     <div
-      className={`bg-black text-white min-h-screen relative z-40 transform ${
-        isOpen ? "min-w-60" : "w-20"
+      className={`bg-black text-white h-20 sm:min-h-screen relative z-40 transform ${
+        isOpen ? "w-60" : "sm:w-20 w-full"
       } transition-all duration-300 flex flex-col`}
     >
-      <div className="flex items-center justify-between p-4 bg-black">
+      <div
+        className={`${
+          !isOpen && "hidden"
+        } flex items-center justify-between p-4 bg-black`}
+      >
         {isOpen && <h2 className="text-lg font-semibold">Menu</h2>}
         <button
           onClick={toggleSidebar}
@@ -99,7 +103,7 @@ const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
         </button>
       </div>
 
-      <nav className="mt-4 flex-grow overflow-y-auto px-2">
+      <nav className="max-sm:hidden mt-4 flex-1 px-2">
         <ul className="space-y-2">
           {navItems.map(({ href, icon: Icon, label }) => (
             <li key={href}>
@@ -128,6 +132,9 @@ const Sidebar = ({ isOpen, toggleSidebar, role, userId }: SidebarProps) => {
           </li>
         </ul>
       </nav>
+      <div className={`sm:hidden flex items-center justify-end h-full`}>
+        <DropDownNav navItems={navItems} />
+      </div>
     </div>
   );
 };

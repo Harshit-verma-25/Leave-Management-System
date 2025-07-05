@@ -1,41 +1,63 @@
 "use server";
 
 import { adminAuth } from "@/app/firebase";
+import { cookies } from "next/headers";
 
-export async function Login(data: { token: string; role: string }) {
+export async function Login(formData: FormData) {
+  const email = formData.get("email") as string;
+  const password = formData.get("password") as string;
+
   try {
-    // Verify token using Admin SDK
-    const decodedToken = await adminAuth.verifyIdToken(data.token);
+    const res = await fetch(
+      `https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=${process.env.NEXT_PUBLIC_FIREBASE_API_KEY}`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          email,
+          password,
+          returnSecureToken: true,
+        }),
+      }
+    );
 
-    if (!decodedToken) {
+    if (res.ok) {
+      const user = await adminAuth.getUserByEmail(email);
+      const customClaims = user.customClaims || {};
+      console.log("Custom Claims:", customClaims);
+
+      const cookieStore = await cookies();
+
+      cookieStore.set("userId", user.uid, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+      });
+      cookieStore.set("name", `${user.displayName}`, {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+      });
+      cookieStore.set("role", customClaims.role.toLowerCase(), {
+        httpOnly: true,
+        sameSite: "strict",
+        secure: process.env.NODE_ENV === "production",
+        expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+      });
+
       return {
-        status: 401,
-        message: "Invalid token",
+        status: 200,
+        message: "Login successful.",
       };
     }
-
-    const userId = decodedToken.uid;
-    const role = decodedToken.role;
-    const name = decodedToken.name;
-
-    if (role.toLowerCase() !== data.role.toLowerCase()) {
-      return {
-        status: 403,
-        message: "Unauthorized Access",
-      };
-    }
-
+  } catch (error) {
+    console.error("Error logging in:", error);
     return {
-      uid: userId,
-      name,
-      role,
-      status: 200,
-    };
-  } catch (error: any) {
-    console.error("Login error:", error.message);
-    return {
-      status: 500,
-      message: "Invalid Email or Password",
+      error: "Error logging in",
     };
   }
 }

@@ -57,7 +57,7 @@ export default function LeaveReviewModal({
     <>
       {commentModal && (
         <div className="fixed inset-0 z-60 bg-opacity-50 flex justify-center items-center p-4">
-          <div className="bg-[#f8f9fa] rounded-xl shadow-2xl p-4 relative min-w-96">
+          <div className="bg-[#f8f9fa] rounded-xl shadow-2xl p-4 relative sm:min-w-96">
             <div className="flex justify-between items-center border-b pb-2">
               <h2 className="text-xl font-semibold">
                 {actionType === "APPROVED"
@@ -118,10 +118,10 @@ export default function LeaveReviewModal({
 
       <div
         className={`fixed inset-0 z-50 bg-opacity-50 flex justify-center items-center p-4 ${
-          commentModal && "blur-sm"
+          commentModal && "blur-md"
         }`}
       >
-        <div className="bg-[#f8f9fa] rounded-xl shadow-2xl p-4 relative min-w-[60vw] max-w-2xl">
+        <div className="bg-[#f8f9fa] rounded-xl shadow-2xl p-4 relative sm:min-w-[60vw] max-sm:overflow-y-auto max-sm:max-h-[90vh]">
           <div className="flex justify-between items-center border-b pb-2">
             <h2 className="text-xl font-semibold">Leave Request Details</h2>
             <button
@@ -256,7 +256,7 @@ export default function LeaveReviewModal({
                     alt="Leave Attachment"
                     width={9999}
                     height={9999}
-                    className="h-14 w-14 object-cover rounded-md"
+                    className="sm:h-48 w-auto object-cover rounded-md"
                   />
                 )}
               </div>

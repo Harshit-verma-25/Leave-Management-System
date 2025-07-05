@@ -1,9 +1,10 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import axios from "axios";
 import Link from "next/link";
 import { MoveLeftIcon } from "lucide-react";
+import { Login } from "@/app/actions/auth/login";
+import { getCookie } from "@/app/actions/getCookie";
 
 type LoginFormProps = {
   type: string;
@@ -29,28 +30,29 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
     }
 
     try {
-      const response = await axios.post(
-        "/api/login",
-        { email, password, role: type.toLowerCase() },
-        {
-          headers: {
-            "Content-Type": "application/json",
-          },
+      const formData = new FormData();
+      formData.append("email", email);
+      formData.append("password", password);
+      const response = await Login(formData);
+
+      if (response && response.status === 200) {
+        toast.success(response.message + " Redirecting...");
+
+        const userCookie = await getCookie();
+
+        if (!userCookie) {
+          toast.error("User not found. Please try again.");
+          setLoading(false);
+          return;
         }
-      );
 
-      if (response.status === 200) {
-        sessionStorage.setItem(
-          "user",
-          JSON.stringify({ name: response.data.name, role: response.data.role })
-        );
-        toast.success(`Welcome back, ${response.data.name}!`);
+        const userId = userCookie.userId;
 
-        router.push(`/${type.toLowerCase()}/${response.data.uid}/dashboard`);
+        router.push(`/${type.toLowerCase()}/${userId}/dashboard`);
       }
     } catch (error: any) {
       if (error.response && error.response.data) {
-        toast.error(error.response.data.message || "An error occurred");
+        toast.error(error.response.data.error || "An error occurred");
       } else {
         toast.error("An unexpected error occurred");
       }
@@ -64,7 +66,7 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
 
   return (
     <form onSubmit={handleSubmit} className="w-full max-w-md space-y-8">
-      <h1>
+      <h1 className="md:text-left text-center">
         <span className="text-2xl font-bold text-slate-900">
           Login as {type}
         </span>
@@ -84,7 +86,7 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
           id="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder={`Enter your ${type} email`}
+          placeholder={`Enter your email`}
           required
           className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-3 shadow-sm focus:border-slate-500 focus:ring focus:ring-slate-200"
         />
@@ -102,7 +104,7 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
             id="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder={`Enter your ${type} password`}
+            placeholder={`Enter your password`}
             required
             className="mt-1 block w-full rounded-md border border-slate-300 px-2 py-3 shadow-sm focus:border-slate-500 focus:ring focus:ring-slate-200"
           />
@@ -137,7 +139,7 @@ export const LoginForm = ({ type, setType }: LoginFormProps) => {
             className="flex items-center gap-1 cursor-pointer"
             onClick={() => setType("")}
           >
-            <MoveLeftIcon className="w-5" /> Back
+            <MoveLeftIcon className="w-3 md:w-5" /> Back
           </button>
         </Link>
       </div>

@@ -10,7 +10,7 @@ import {
 import Image from "next/image";
 import { Plus, X } from "lucide-react";
 import { toast } from "react-toastify";
-import { eachDayOfInterval, isBefore, parseISO } from "date-fns";
+import { eachDayOfInterval, isBefore, parseISO, set } from "date-fns";
 import { uploadImage } from "@/app/actions/image/uploadImage";
 import { createLeave } from "@/app/actions/leave/createLeave";
 import { nanoid } from "nanoid";
@@ -19,6 +19,7 @@ import { updateLeave } from "@/app/actions/leave/updateLeave";
 import { getSingleStaff } from "../actions/staff/getSingleStaff";
 import { ReportingAuthority } from "@/app/types/user";
 import React from "react";
+import { smartCompose } from "@/app/actions/openAI/smartCompose";
 
 type roleType = "manager" | "employee";
 type LeaveMode = "create" | "edit" | "view";
@@ -52,7 +53,6 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
           description: "",
         },
       ],
-      reason: "",
       appliedOn: new Date().toISOString().split("T")[0],
       status: "PENDING",
     }
@@ -60,11 +60,18 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
   const [reportingAuthority, setReportingAuthority] = useState<
     ReportingAuthority[]
   >([]);
+
   const [attachment, setAttachment] = useState<File | null>(null);
   const [attachmentPreview, setAttachmentPreview] = useState<string | null>(
     null
   );
+
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const [reason, setReason] = useState<string>("");
+  const [reasonSuggestion, setReasonSuggestion] = useState<string>("");
+  const [projectDescriptions, setProjectDescriptions] = useState<string[]>([]);
+  const [projectSuggestions, setProjectSuggestions] = useState<string[]>([]);
 
   useEffect(() => {
     if (mode === "create") return;
@@ -253,6 +260,76 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
     });
   }
 
+  const handleSmartCompose = async (
+    e: React.KeyboardEvent<HTMLTextAreaElement>,
+    type: "reason" | "project",
+    index?: number
+  ) => {
+    if (e.key === " " && type === "reason" && reason.trim().length > 5) {
+      const word = await smartCompose(reason.trim(), type);
+      if (word) setReasonSuggestion(word);
+    }
+
+    if (e.key === " " && type === "project" && typeof index === "number") {
+      const current = projectDescriptions[index] || "";
+      if (current.trim().length > 5) {
+        const word = await smartCompose(current.trim(), type);
+        if (word) {
+          setProjectSuggestions((prev) => {
+            const updated = [...prev];
+            updated[index] = word;
+            return updated;
+          });
+        }
+      }
+    }
+
+    if (e.key === "Tab" && type === "reason" && reasonSuggestion) {
+      e.preventDefault();
+      const newReason = reason + reasonSuggestion + " ";
+      setReason(newReason);
+      setReasonSuggestion("");
+      const next = await smartCompose(newReason.trim(), type);
+      if (next) setReasonSuggestion(next);
+    }
+
+    if (
+      e.key === "Tab" &&
+      type === "project" &&
+      typeof index === "number" &&
+      projectSuggestions[index]
+    ) {
+      e.preventDefault();
+      const current = projectDescriptions[index] || "";
+      const suggestion = projectSuggestions[index];
+      const newDesc = current + suggestion + " ";
+
+      // Update value
+      setProjectDescriptions((prev) => {
+        const updated = [...prev];
+        updated[index] = newDesc;
+        return updated;
+      });
+
+      // Clear suggestion
+      setProjectSuggestions((prev) => {
+        const updated = [...prev];
+        updated[index] = "";
+        return updated;
+      });
+
+      // Trigger next suggestion
+      const next = await smartCompose(newDesc.trim(), type);
+      if (next) {
+        setProjectSuggestions((prev) => {
+          const updated = [...prev];
+          updated[index] = next;
+          return updated;
+        });
+      }
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -271,6 +348,12 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
       }
     }
 
+    if (!reason.trim()) {
+      toast.error("Please provide a reason for the leave.");
+      setIsSubmitting(false);
+      return;
+    }
+
     // Validate required fields
     const requiredFields = [
       "leaveType",
@@ -279,7 +362,6 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
       "addressDuringLeave",
       "emergencyContactName",
       "emergencyContactNumber",
-      "reason",
     ];
 
     for (const field of requiredFields) {
@@ -291,8 +373,20 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
     }
 
     for (const project of formData.delegationOfDuties) {
-      if (!project.project || !project.deadline || !project.delegatedTo || !project.description) {
+      if (
+        !project.project ||
+        !project.deadline ||
+        !project.delegatedTo
+      ) {
         toast.error("Please fill in all fields for each project.");
+        setIsSubmitting(false);
+        return;
+      }
+    }
+
+    for (const projectDesc of projectDescriptions) {
+      if (!projectDesc.trim()) {
+        toast.error("Please provide a description for each project.");
         setIsSubmitting(false);
         return;
       }
@@ -334,13 +428,24 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
           designation: auth.designation,
         }));
 
+        const updatedForm = {
+          ...formData,
+          delegationOfDuties: formData.delegationOfDuties.map(
+            (project, index) => ({
+              ...project,
+              description: projectDescriptions[index] || "",
+            })
+          ),
+        }
+
         const response = await createLeave(
           {
-            ...formData,
+            ...updatedForm,
             attachment: url || "",
             approvalStatus: appStats as LeaveHistoryProps["approvalStatus"],
             currentApprover: reportingAuthority[0].id,
             name: JSON.parse(sessionStorage.getItem("user") || "{}").name,
+            reason: reason.trim(),
           },
           leaveID
         );
@@ -361,10 +466,10 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] lg:p-6 p-4">
+    <div className="min-h-screen bg-[#f8f9fa] md:p-6 p-3">
       <div className="w-full">
         <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
             Leave Application
           </h1>
           <p className="text-gray-600">
@@ -418,6 +523,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
                 </label>
                 <input
                   id="startDate"
+                  lang="en-IN"
                   type="date"
                   name="startDate"
                   value={formData.startDate || ""}
@@ -439,6 +545,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
                 </label>
                 <input
                   id="endDate"
+                  lang="en-IN"
                   type="date"
                   name="endDate"
                   value={formData.endDate || ""}
@@ -546,7 +653,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
           <div>
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-xl font-bold text-gray-800">
-                <span className="underline">
+                <span className="underline break-words">
                   Delegation of Duties & Project Handover
                 </span>
                 :
@@ -563,16 +670,19 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
                   disabled={formData.delegationOfDuties.length >= 3}
                 >
                   <Plus className="w-5 h-5 text-white" />
-                  Add Project
+                  Project
                 </button>
               )}
             </div>
 
-            <div className="space-y-4 mt-4">
+            <div className="space-y-4">
               {formData.delegationOfDuties.map((project, index) => (
-                <div key={index} className="grid gap-4 md:grid-cols-2">
+                <div
+                  key={index}
+                  className="grid gap-4 grid-cols-1 md:grid-cols-2"
+                >
                   {index === 0 && (
-                    <h3 className="text-lg font-semibold text-gray-800 col-span-2">
+                    <h3 className="text-lg font-semibold text-gray-800 md:col-span-2">
                       Project {index + 1}{" "}
                       <span className="text-red-500">*</span>{" "}
                       {
@@ -584,7 +694,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
                   )}
 
                   {index !== 0 && (
-                    <div className="flex items-center justify-between col-span-2">
+                    <div className="flex items-center justify-between md:col-span-2">
                       <h3 className="text-lg font-semibold text-gray-800">
                         Project {index + 1}
                       </h3>
@@ -657,25 +767,66 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
                       Project Description{" "}
                       {index === 0 && <span className="text-red-500">*</span>}
                     </label>
-                    <textarea
-                      id={`description-${index}`}
-                      name="description"
-                      value={project.description}
-                      onChange={(e) =>
-                        handleProjectChange(
-                          index,
-                          "description",
-                          e.target.value
-                        )
-                      }
-                      placeholder="Enter project description"
-                      rows={3}
-                      className={`w-full border border-gray-300 rounded-md p-2 ${
-                        mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
-                      }`}
-                      required
-                      readOnly={mode === "view"}
-                    />
+                    <div className="relative mb-2">
+                      <div
+                        className={`absolute top-0 left-0 w-full h-full p-2 whitespace-pre-wrap break-words text-black pointer-events-none z-0`}
+                        style={{
+                          fontSize: "1rem",
+                          fontFamily: "inherit",
+                          lineHeight: "1.5rem",
+                          whiteSpace: "pre-wrap",
+                        }}
+                      >
+                        <span className="invisible">
+                          {projectDescriptions[index]}
+                        </span>
+                        {projectDescriptions[index]?.trim().length > 5 && (
+                          <span className="text-gray-400">
+                            {projectSuggestions[index]}
+                          </span>
+                        )}
+                      </div>
+
+                      <textarea
+                        id={`description-${index}`}
+                        name="description"
+                        value={projectDescriptions[index] || ""}
+                        onChange={(e) => {
+                          const newValue = e.target.value;
+                          setProjectDescriptions((prev) => {
+                            const updated = [...prev];
+                            updated[index] = newValue;
+                            return updated;
+                          });
+                        }}
+                        onKeyDown={(e) =>
+                          handleSmartCompose(e, "project", index)
+                        }
+                        onBlur={() =>
+                          setProjectSuggestions((prev) => {
+                            const updated = [...prev];
+                            updated[index] = "";
+                            return updated;
+                          })
+                        }
+                        placeholder="Enter project description"
+                        rows={3}
+                        className={`w-full border border-gray-300 rounded-md p-2 bg-transparent text-black relative z-10 ${
+                          mode === "view"
+                            ? "bg-gray-100 cursor-not-allowed"
+                            : ""
+                        }`}
+                        readOnly={mode === "view"}
+                        required={index === 0}
+                        style={{
+                          caretColor: "black",
+                          fontSize: "1rem",
+                          fontFamily: "inherit",
+                          lineHeight: "1.5rem",
+                          resize: "none",
+                        }}
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -711,7 +862,7 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
             </div>
           </div>
 
-          <div>
+          <div className="w-full">
             <h2 className="text-xl font-bold text-gray-800 mb-4">
               <span className="underline">Leave Justification</span>:
             </h2>
@@ -721,19 +872,49 @@ export const LeaveForm = ({ role }: { role: roleType }) => {
             >
               Reason <span className="text-red-500">*</span>
             </label>
-            <textarea
-              id="reason"
-              name="reason"
-              onChange={handleChange}
-              value={formData.reason}
-              placeholder="State your reason"
-              rows={3}
-              className={`w-full border border-gray-300 rounded-md p-2 ${
-                mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
-              }`}
-              required
-              readOnly={mode === "view"}
-            />
+
+            {/* Container to stack overlay and textarea */}
+            <div className="relative w-full">
+              {/* Suggestion Overlay */}
+              <div
+                className={`absolute top-0 left-0 w-full h-full p-2 whitespace-pre-wrap break-words text-black pointer-events-none z-0`}
+                style={{
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                  lineHeight: "1.5rem",
+                  whiteSpace: "pre-wrap",
+                }}
+              >
+                <span className="invisible">{reason}</span>
+                {reason.trim().length > 5 && (
+                  <span className="text-gray-400">{reasonSuggestion}</span>
+                )}
+              </div>
+
+              {/* Textarea on top */}
+              <textarea
+                id="reason"
+                name="reason"
+                onChange={(e) => setReason(e.target.value)}
+                value={reason}
+                onKeyDown={(e) => handleSmartCompose(e, "reason")}
+                onBlur={() => setReasonSuggestion("")}
+                placeholder="State your reason"
+                rows={3}
+                className={`w-full border border-gray-300 rounded-md p-2 bg-transparent text-black relative z-10 ${
+                  mode === "view" ? "bg-gray-100 cursor-not-allowed" : ""
+                }`}
+                required
+                readOnly={mode === "view"}
+                style={{
+                  caretColor: "black",
+                  fontSize: "1rem",
+                  fontFamily: "inherit",
+                  lineHeight: "1.5rem",
+                  resize: "none",
+                }}
+              />
+            </div>
           </div>
 
           {/* Attachment Section */}

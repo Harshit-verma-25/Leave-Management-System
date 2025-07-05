@@ -35,7 +35,7 @@ export default function StaffPage() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] lg:p-6 p-4">
+    <div className="min-h-screen bg-[#f8f9fa] md:p-6 p-3">
       <div className="flex items-center justify-between">
         <h1 className="text-3xl font-bold text-gray-900">Staff</h1>
       </div>

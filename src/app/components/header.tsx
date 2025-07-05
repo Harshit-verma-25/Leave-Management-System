@@ -53,7 +53,7 @@ export default function Header({
   const RoleIcon = roleConfig.icon;
 
   return (
-    <header className="w-full bg-white shadow-md py-4 px-6 flex items-center justify-between">
+    <header className="w-full bg-white shadow-md py-4 sm:px-6 px-4 flex items-center justify-between">
       {/* Logo with Role Indicator */}
       <div className="flex items-center gap-4">
         <div className="text-xl h-10 w-10 font-bold text-slate-800">
@@ -69,7 +69,7 @@ export default function Header({
 
         {/* Role Badge */}
         <div
-          className={`${roleConfig.badgeColor} px-3 py-1.5 rounded-full border flex items-center gap-2 shadow-sm`}
+          className={`max-sm:hidden ${roleConfig.badgeColor} px-3 py-1.5 rounded-full border flex items-center gap-2 shadow-sm`}
         >
           <RoleIcon className="w-4 h-4" />
           <span className="text-sm font-semibold">{roleConfig.label}</span>

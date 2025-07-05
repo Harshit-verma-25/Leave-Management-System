@@ -84,21 +84,25 @@ export default function LeaveApproval({ id }: { id: string }) {
       )}
 
       <div
-        className={`min-h-screen bg-[#f8f9fa] p-6 ${isModalOpen && "blur-sm"}`}
+        className={`min-h-screen bg-[#f8f9fa] md:p-6 p-3 ${
+          isModalOpen && "blur-sm"
+        }`}
       >
-        <h1 className="text-3xl font-bold text-gray-900">Leave Approvals</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
+          Leave Approvals
+        </h1>
 
         <p className="text-gray-600 mb-4">
           Manage and review leave requests from employees.
         </p>
 
         {/* Tabs */}
-        <div className="flex space-x-3 mb-6">
+        <div className="flex flex-wrap gap-2 mb-6">
           {(["PENDING", "APPROVED", "DISAPPROVED"] as const).map((status) => (
             <button
               key={status}
               onClick={() => setSelectedTab(status)}
-              className={`px-4 py-2 rounded-md text-sm font-medium border   cursor-pointer ${
+              className={`flex-1 min-w-[100px] px-3 py-2 rounded-md text-sm font-medium border text-center ${
                 selectedTab === status
                   ? "bg-black text-white"
                   : "text-gray-600 hover:bg-gray-100"
@@ -144,11 +148,11 @@ export default function LeaveApproval({ id }: { id: string }) {
               return (
                 <div
                   key={req.id}
-                  className=" p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                  className="p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
                 >
-                  <div className="w-full flex flex-col md:flex-row justify-between">
+                  <div className="w-full flex justify-between">
                     <div className="flex-1 flex flex-col gap-4">
-                      <div className="flex items-center gap-2">
+                      <div className="flex sm:items-center sm:flex-row flex-col-reverse gap-2">
                         <h3 className="text-lg font-semibold">
                           {
                             LEAVE_TYPES[
@@ -157,7 +161,7 @@ export default function LeaveApproval({ id }: { id: string }) {
                           }
                         </h3>
                         <span
-                          className={`px-2 py-1 rounded-3xl font-semibold text-xs ${
+                          className={`px-2 py-1 w-fit rounded-3xl font-semibold text-xs ${
                             req.approvalStatus?.find((step) => step.id === id)
                               ?.status === "PENDING"
                               ? "bg-yellow-100 text-yellow-800 border border-yellow-800"
@@ -175,7 +179,7 @@ export default function LeaveApproval({ id }: { id: string }) {
                         </span>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         <p className="text-sm text-gray-700">
                           <strong>Employee: </strong>
                           {req.name}

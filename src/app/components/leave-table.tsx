@@ -25,8 +25,8 @@ export const LeaveTable = ({ role }: { role: string }) => {
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
-    // Fetch leave requests from the server
     const fetchLeaveRequests = async () => {
+      setLoading(true);
       try {
         const response = await getAllLeave(id);
 
@@ -36,15 +36,11 @@ export const LeaveTable = ({ role }: { role: string }) => {
         }
 
         if (response.status !== 200) {
-          throw new Error("Failed to fetch leave requests");
+          toast.error("Failed to fetch leave requests");
         }
 
-        setData((response.data as LeaveHistoryProps[]) || []);
-        setFilteredData(
-          (response.data as LeaveHistoryProps[]).filter(
-            (leave) => leave.status === selectedTab
-          )
-        );
+        const leaves = (response.data as LeaveHistoryProps[]) || [];
+        setData(leaves);
       } catch (error) {
         console.error("Error fetching leave requests:", error);
       } finally {
@@ -53,7 +49,13 @@ export const LeaveTable = ({ role }: { role: string }) => {
     };
 
     fetchLeaveRequests();
-  }, [id, searchParams]);
+  }, [id, searchParams]); // ✅ ONLY trigger API call on ID or search changes
+
+  useEffect(() => {
+    if (!data) return;
+    const filtered = data.filter((leave) => leave.status === selectedTab);
+    setFilteredData(filtered);
+  }, [selectedTab, data]);
 
   const toggleCardExpansion = (leaveId: string) => {
     setExpandCard((prev) => (prev === leaveId ? null : leaveId));
@@ -84,9 +86,11 @@ export const LeaveTable = ({ role }: { role: string }) => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f8f9fa] p-6">
+    <div className="min-h-screen bg-[#f8f9fa] md:p-6 p-3">
       <div className="mb-6 flex items-center justify-between">
-        <h1 className="text-3xl font-bold text-gray-900">Leave Records</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          Leave Records
+        </h1>
         <Link href={`/${role}/${id}/leaves/new/create`}>
           <button className="rounded bg-black px-4 py-2 text-white cursor-pointer">
             Apply for Leave
@@ -95,12 +99,12 @@ export const LeaveTable = ({ role }: { role: string }) => {
       </div>
 
       {/* Tabs */}
-      <div className="flex space-x-3 mb-6">
+      <div className="flex flex-wrap gap-2 mb-6">
         {(["PENDING", "APPROVED", "DISAPPROVED"] as const).map((status) => (
           <button
             key={status}
             onClick={() => setSelectedTab(status)}
-            className={`px-4 py-2 rounded-md text-sm font-medium border cursor-pointer ${
+            className={`flex-1 min-w-[100px] px-3 py-2 rounded-md text-sm font-medium border text-center ${
               selectedTab === status
                 ? "bg-black text-white"
                 : "text-gray-600 hover:bg-gray-100"
@@ -184,16 +188,16 @@ export const LeaveTable = ({ role }: { role: string }) => {
             return (
               <div
                 key={req.id}
-                className=" p-4 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
+                className="p-3 border rounded-lg bg-white shadow-sm hover:shadow-md transition-shadow"
               >
-                <div className="w-full flex flex-col md:flex-row justify-between">
+                <div className="w-full flex justify-between">
                   <div className="flex-1 flex flex-col gap-4">
-                    <div className="flex items-center gap-2">
+                    <div className="flex sm:items-center sm:flex-row flex-col-reverse gap-2">
                       <h3 className="text-lg font-semibold">
                         {LEAVE_TYPES[req.leaveType as keyof typeof LEAVE_TYPES]}
                       </h3>
                       <span
-                        className={`px-2 py-1 rounded-3xl font-semibold text-xs ${
+                        className={`px-2 py-1 w-fit rounded-3xl font-semibold text-xs ${
                           req.status === "PENDING"
                             ? "bg-yellow-100 text-yellow-800 border border-yellow-800"
                             : req.status === "APPROVED"
@@ -205,7 +209,7 @@ export const LeaveTable = ({ role }: { role: string }) => {
                       </span>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                       <p className="text-sm text-gray-700">
                         <strong>Start Date: </strong>
                         {formatDate(req.startDate ?? "")}

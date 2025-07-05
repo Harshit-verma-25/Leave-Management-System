@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { UserRole } from "@/app/types/user";
 import { getSingleStaff } from "@/app/actions/staff/getSingleStaff";
+import { getCookie } from "@/app/actions/getCookie";
 
 export default function EmployeeLayout({
   children,
@@ -27,23 +28,43 @@ export default function EmployeeLayout({
   });
 
   useEffect(() => {
-    if (window.innerWidth < 1024) {
-      setSidebarOpen(false);
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        setSidebarOpen(false);
+      } else {
+        setSidebarOpen(true);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      handleResize(); // run once on load
+      window.addEventListener("resize", handleResize);
     }
+
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
   }, []);
 
   useEffect(() => {
     const getUser = async () => {
-      const user = sessionStorage.getItem("user");
-      const response = await getSingleStaff(employeeId);
-      if (user && response.status === 200 && response.data) {
-        const parsedUser = JSON.parse(user);
+      const user = await getCookie();
+      if (!user) {
+        console.error("User not found in cookies");
+        return;
+      }
 
+      const { userId, name, role } = user;
+      const response = await getSingleStaff(userId);
+
+      if (response.data && response.status === 200) {
         setUser({
-          name: parsedUser.name,
-          role: parsedUser.role,
-          profile: response.data.profile as string,
+          name: name,
+          role: role as UserRole,
+          profile: (response.data.profile || "") as string,
         });
+      } else {
+        console.error("Error fetching user data:", response.message);
       }
     };
 
@@ -57,7 +78,7 @@ export default function EmployeeLayout({
   return (
     <>
       <Header userName={user.name} profile={user.profile} role={user.role} />
-      <div className="flex flex-grow relative">
+      <div className="flex max-sm:flex-col">
         <Sidebar
           isOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
@@ -65,7 +86,7 @@ export default function EmployeeLayout({
           userId={employeeId}
         />
 
-        <div className="flex-grow py-4 lg:px-6 px-4 transition-all duration-300">
+        <div className="flex-1 lg:px-6 p-3 transition-all duration-300">
           {children}
         </div>
       </div>

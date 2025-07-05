@@ -4,6 +4,7 @@ import { adminAuth, rltdb } from "@/app/firebase";
 import { SingleStaffData } from "@/app/types/user";
 import { ref, set } from "firebase/database";
 import { createStaff } from "@/app/actions/staff/createStaff";
+import { cookies } from "next/headers";
 
 function getNextStaffId(currentId: string): string {
   const prefix = currentId.match(/^[A-Za-z]+/)?.[0] || "";
@@ -20,6 +21,23 @@ export async function SignUp(
   data: SingleStaffData,
   staffID: string
 ) {
+  try {
+    const existingUser = await adminAuth.getUserByEmail(email);
+    if (existingUser) {
+      return {
+        status: 400,
+        message: "User already exists",
+      };
+    }
+  } catch (error: any) {
+    if (error.code !== "auth/user-not-found") {
+      return {
+        status: 500,
+        message: "Error checking existing user",
+      };
+    }
+  }
+
   const newUser = await adminAuth.createUser({
     email,
     password,
@@ -40,10 +58,28 @@ export async function SignUp(
       LastStaffID: nextStaffID,
     });
 
+    const cookieStore = await cookies();
+    
+    cookieStore.set("userId", userId, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+    });
+    cookieStore.set("name", `${data.firstName} ${data.lastName}`, {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+    });
+    cookieStore.set("role", data.role.toLowerCase(), {
+      httpOnly: true,
+      sameSite: "strict",
+      secure: process.env.NODE_ENV === "production",
+      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
+    });
+
     return {
-      uid: userId,
-      name: `${data.firstName} ${data.lastName}`,
-      role: data.role.toLowerCase(),
       message: "Staff created successfully",
       status: 200,
     };

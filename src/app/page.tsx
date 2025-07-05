@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="flex min-h-screen flex-col md:flex-row">
       {/* Logo Section - 50% */}
-      <div className="flex w-full items-center justify-center bg-slate-50 md:w-1/2 md:p-12">
+      <div className="flex flex-1 w-full items-center justify-center bg-slate-50 md:w-1/2 lg:p-12 md:p-6 px-4">
         <div className="flex w-full flex-col items-center text-center">
           <div className="mb-4 rounded-full bg-slate-100">
             {/* <Building2 className="h-16 w-16 text-slate-800" /> */}
@@ -19,18 +19,19 @@ export default function Home() {
               alt="LeaveTrack Pro Logo"
               width={9999}
               height={9999}
-              className="h-36 w-36 rounded-full bg-slate-800 p-2"
+              className="h-36 w-36 rounded-full bg-slate-800 md:p-2 p-1"
+              priority
             />
           </div>
-          <h1 className="mb-2 text-3xl font-bold tracking-tight text-slate-900 md:text-4xl">
+          <h1 className="mb-2 text-lg md:text-2xl font-bold tracking-tight text-slate-900 lg:text-3xl">
             Wisitech InfoSolutions Pvt. Ltd.
           </h1>
-          <p className="text-xl text-slate-600">Engage. Convert. Thrive. </p>
+          <p className="text-base md:text-xl text-slate-600">Engage. Convert. Thrive.</p>
         </div>
       </div>
 
       {/* Login Section - 50% */}
-      <div className="flex w-full items-center justify-center bg-white p-8 md:w-1/2 md:p-12">
+      <div className="flex flex-1 w-full items-center justify-center bg-white md:w-1/2 lg:p-12 md:p-6 px-4">
         {type === "" && (
           <div className="w-full max-w-md space-y-8">
             <div className="text-center">
@@ -65,7 +66,7 @@ export default function Home() {
               </button>
             </div>
 
-            <div className="mt-8 text-center text-sm text-slate-500">
+            <div className="mt-5 md:mt-8 text-center text-sm text-slate-500">
               <p>
                 © {new Date().getFullYear()} Wisitech InfoSolutions Pvt. Ltd.
                 All rights reserved.

@@ -15,6 +15,7 @@ interface CreateLeave extends ApplyLeaveProps {
   }[];
   currentApprover: string;
   name: string;
+  reason: string;
 }
 
 export async function createLeave(data: CreateLeave, leaveID: string) {

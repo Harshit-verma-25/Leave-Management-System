@@ -71,7 +71,7 @@ export default function ApprovalTimeline({
                     </h5>
                     <p className="text-sm text-gray-500">{step.designation}</p>
                   </div>
-                  <div className="text-right">
+                  <div className="text-right min-w-fit">
                     <span
                       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                         step.status === "APPROVED"

@@ -24,7 +24,6 @@ export interface ApplyLeaveProps {
     delegatedTo: string;
     description: string;
   }[];
-  reason: string;
   appliedOn: string;
   status: LeaveStatus;
 }
@@ -44,6 +43,7 @@ export interface LeaveHistoryProps extends ApplyLeaveProps {
   attachment: string | null;
   approvalStatus: ApprovalStatus[];
   currentApprover: string;
+  reason: string;
 }
 export interface ApprovalHierarchy {
   leaveRequestId: string;
