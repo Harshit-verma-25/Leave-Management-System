@@ -7,9 +7,7 @@ import {
   CheckCircle,
   XCircle,
   Calendar,
-  TrendingUp,
   User,
-  Settings,
 } from "lucide-react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
@@ -19,7 +17,6 @@ import { getAllStaff } from "@/app/actions/staff/getAllStaff";
 import { getLeavesForApprover } from "@/app/actions/leave/getLeaveForApprover";
 import { getLeaveByApprover } from "@/app/actions/leave/getLeaveByApprover";
 import { toast } from "react-toastify";
-import { set } from "date-fns";
 
 export default function AdminDashboard() {
   const { id } = useParams() as { id: string };

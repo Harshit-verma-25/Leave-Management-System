@@ -6,7 +6,6 @@ import {
   CheckCircle,
   Calendar,
   AlertCircle,
-  User,
   FileText,
   XCircle,
 } from "lucide-react";
@@ -120,17 +119,6 @@ export default function ManagerDashboard() {
         new Date(b.appliedOn).getTime() - new Date(a.appliedOn).getTime()
     )
     .slice(0, 3);
-
-  const handleApproval = async (
-    leaveId: string,
-    status: "APPROVED" | "DISAPPROVED",
-    comment = ""
-  ) => {
-    // In real app, this would update Firebase
-    console.log(`${status} leave ${leaveId} with comment: ${comment}`);
-    // Update local state for demo
-    setPendingApprovals((prev) => prev.filter((leave) => leave.id !== leaveId));
-  };
 
   const getStatusColor = (status: "PENDING" | "APPROVED" | "DISAPPROVED") => {
     switch (status) {
