@@ -4,7 +4,6 @@ import { adminAuth, rltdb } from "@/app/firebase";
 import { SingleStaffData } from "@/app/types/user";
 import { ref, set } from "firebase/database";
 import { createStaff } from "@/app/actions/staff/createStaff";
-import { cookies } from "next/headers";
 
 function getNextStaffId(currentId: string): string {
   const prefix = currentId.match(/^[A-Za-z]+/)?.[0] || "";
