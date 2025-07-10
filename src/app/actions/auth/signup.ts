@@ -58,27 +58,6 @@ export async function SignUp(
       LastStaffID: nextStaffID,
     });
 
-    const cookieStore = await cookies();
-    
-    cookieStore.set("userId", userId, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
-    });
-    cookieStore.set("name", `${data.firstName} ${data.lastName}`, {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
-    });
-    cookieStore.set("role", data.role.toLowerCase(), {
-      httpOnly: true,
-      sameSite: "strict",
-      secure: process.env.NODE_ENV === "production",
-      expires: new Date(Date.now() + 60 * 60 * 24 * 7 * 1000), // 7 days
-    });
-
     return {
       message: "Staff created successfully",
       status: 200,
